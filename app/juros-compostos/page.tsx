@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { calculateCompoundInterest } from "@/utils/calculations";
-import AdSpace from "@/components/AdSpace";
 import FinZaaPromo from "@/components/FinZaaPromo";
 import Link from "next/link";
 import { ArrowLeft, TrendingUp } from "lucide-react";
@@ -32,8 +31,6 @@ export default function CompoundInterestCalculator() {
       <Link href="/" className="inline-flex items-center text-slate-500 hover:text-slate-700 mb-6">
         <ArrowLeft className="w-4 h-4 mr-2" /> Voltar para o início
       </Link>
-
-      <AdSpace position="top" />
 
       <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
         <div className="bg-purple-600 p-6 md:p-8 text-white">

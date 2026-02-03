@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { calculateVacation } from "@/utils/calculations";
-import AdSpace from "@/components/AdSpace";
 import FinZaaPromo from "@/components/FinZaaPromo";
 import Link from "next/link";
 import { ArrowLeft, Plane } from "lucide-react";
@@ -31,8 +30,6 @@ export default function VacationCalculator() {
       <Link href="/" className="inline-flex items-center text-slate-500 hover:text-slate-700 mb-6">
         <ArrowLeft className="w-4 h-4 mr-2" /> Voltar para o início
       </Link>
-
-      <AdSpace position="top" />
 
       <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
         <div className="bg-green-600 p-6 md:p-8 text-white">
@@ -150,8 +147,8 @@ export default function VacationCalculator() {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-8 mt-12">
-        <div className="md:col-span-2 prose prose-slate max-w-none">
+      <div className="mt-12">
+        <div className="prose prose-slate max-w-none">
           <h2>Entenda o cálculo de férias</h2>
           <p>
             Todo trabalhador CLT tem direito a 30 dias de férias após 12 meses de trabalho. 
@@ -170,10 +167,6 @@ export default function VacationCalculator() {
             Isso é chamado de <strong>Abono Pecuniário</strong>. A vantagem é que sobre este valor não incide imposto de renda nem INSS, 
             o que aumenta o valor líquido recebido.
           </p>
-        </div>
-        
-        <div className="space-y-6">
-          <AdSpace position="sidebar" />
         </div>
       </div>
 

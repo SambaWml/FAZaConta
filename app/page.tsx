@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { Calculator, Plane, TrendingUp, ArrowRight, FileX } from "lucide-react";
-import AdSpace from "@/components/AdSpace";
 import FinZaaPromo from "@/components/FinZaaPromo";
 
 export default function Home() {
@@ -37,8 +36,6 @@ export default function Home() {
 
   return (
     <main className="container mx-auto px-4 py-8 max-w-5xl">
-      <AdSpace position="top" />
-
       <header className="text-center mb-12 mt-8">
         <h1 className="text-4xl font-bold text-slate-900 mb-4">
           QAVenture
@@ -73,16 +70,13 @@ export default function Home() {
 
       <FinZaaPromo />
 
-      <div className="grid md:grid-cols-2 gap-8 mt-12">
-        <div className="prose prose-slate">
+      <div className="mt-12">
+        <div className="prose prose-slate mx-auto text-center">
           <h3>Por que usar nossas calculadoras?</h3>
           <p>
             Nossas ferramentas são atualizadas constantemente com as últimas tabelas da Receita Federal e legislação trabalhista.
             Garanta precisão nos seus cálculos de rescisão, férias e investimentos.
           </p>
-        </div>
-        <div>
-           <AdSpace position="inline" />
         </div>
       </div>
     </main>

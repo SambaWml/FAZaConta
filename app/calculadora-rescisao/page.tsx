@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { calculateTermination } from "@/utils/calculations";
-import AdSpace from "@/components/AdSpace";
 import FinZaaPromo from "@/components/FinZaaPromo";
 import Link from "next/link";
 import { ArrowLeft, FileX, Info } from "lucide-react";
@@ -37,8 +36,6 @@ export default function TerminationCalculator() {
       <Link href="/" className="inline-flex items-center text-slate-500 hover:text-slate-700 mb-6">
         <ArrowLeft className="w-4 h-4 mr-2" /> Voltar para o início
       </Link>
-
-      <AdSpace position="top" />
 
       <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden mb-8">
         <div className="bg-red-600 p-6 md:p-8 text-white">
@@ -181,8 +178,8 @@ export default function TerminationCalculator() {
 
       <FinZaaPromo />
       
-      <div className="mt-12 grid md:grid-cols-3 gap-8">
-        <div className="md:col-span-2 prose prose-slate max-w-none">
+      <div className="mt-12">
+        <div className="prose prose-slate max-w-none">
           <h2>Entenda o Cálculo de Rescisão</h2>
           <p>
             A rescisão de contrato de trabalho envolve o pagamento de diversas verbas rescisórias, que variam de acordo com o motivo do desligamento e o tempo de serviço.
@@ -206,10 +203,6 @@ export default function TerminationCalculator() {
             <li><strong>Pedido de Demissão:</strong> O trabalhador não recebe aviso prévio (pode ter que pagar) e não saca o FGTS. Recebe saldo de salário, 13º e férias.</li>
             <li><strong>Com Justa Causa:</strong> O trabalhador perde quase todos os direitos, recebendo apenas saldo de salário e férias vencidas (se houver).</li>
           </ul>
-        </div>
-        
-        <div>
-          <AdSpace position="sidebar" />
         </div>
       </div>
     </div>

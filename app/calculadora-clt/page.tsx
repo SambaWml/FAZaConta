@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { calculateNetSalary } from "@/utils/calculations";
-import AdSpace from "@/components/AdSpace";
 import FinZaaPromo from "@/components/FinZaaPromo";
 import Link from "next/link";
 import { ArrowLeft, Calculator } from "lucide-react";
@@ -29,8 +28,6 @@ export default function CLTCalculator() {
       <Link href="/" className="inline-flex items-center text-slate-500 hover:text-slate-700 mb-6">
         <ArrowLeft className="w-4 h-4 mr-2" /> Voltar para o início
       </Link>
-
-      <AdSpace position="top" />
 
       <div className="bg-white rounded-2xl shadow-xl border border-slate-100 overflow-hidden">
         <div className="bg-blue-600 p-6 md:p-8 text-white">
@@ -165,7 +162,6 @@ export default function CLTCalculator() {
         </div>
         
         <div className="space-y-6">
-          <AdSpace position="sidebar" />
           <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
             <h4 className="font-bold text-yellow-800 mb-2">Dica Financeira</h4>
             <p className="text-sm text-yellow-700">
