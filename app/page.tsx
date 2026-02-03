@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Calculator, Plane, TrendingUp, ArrowRight } from "lucide-react";
+import { Calculator, Plane, TrendingUp, ArrowRight, FileX } from "lucide-react";
 import AdSpace from "@/components/AdSpace";
 import FinZaaPromo from "@/components/FinZaaPromo";
 
@@ -20,6 +20,13 @@ export default function Home() {
       color: "bg-green-50 hover:border-green-200",
     },
     {
+      title: "Calculadora de Rescisão",
+      description: "Calcule seus direitos trabalhistas ao sair da empresa: Aviso prévio, 13º, férias e saldo de salário.",
+      icon: <FileX className="w-8 h-8 text-red-500" />,
+      href: "/calculadora-rescisao",
+      color: "bg-red-50 hover:border-red-200",
+    },
+    {
       title: "Simulador de Juros Compostos",
       description: "Planeje seu futuro financeiro. Veja como seus investimentos crescem ao longo do tempo.",
       icon: <TrendingUp className="w-8 h-8 text-purple-500" />,
@@ -34,14 +41,14 @@ export default function Home() {
 
       <header className="text-center mb-12 mt-8">
         <h1 className="text-4xl font-bold text-slate-900 mb-4">
-          Portal de Ferramentas Úteis
+          QAVenture
         </h1>
         <p className="text-xl text-slate-600 max-w-2xl mx-auto">
-          Calculadoras financeiras e trabalhistas simplificadas para você tomar as melhores decisões.
+          Calculadoras financeiras e trabalhistas precisas e simplificadas.
         </p>
       </header>
 
-      <div className="grid md:grid-cols-3 gap-6 mb-12">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
         {tools.map((tool) => (
           <Link 
             key={tool.href} 
@@ -51,14 +58,14 @@ export default function Home() {
             <div className="mb-4 bg-white p-3 rounded-xl inline-block shadow-sm">
               {tool.icon}
             </div>
-            <h2 className="text-xl font-bold text-slate-800 mb-2">
+            <h2 className="text-lg font-bold text-slate-800 mb-2">
               {tool.title}
             </h2>
-            <p className="text-slate-600 text-sm mb-4">
+            <p className="text-slate-600 text-xs mb-4 h-16 overflow-hidden">
               {tool.description}
             </p>
             <div className="flex items-center text-sm font-semibold text-slate-900">
-              Acessar Ferramenta <ArrowRight className="w-4 h-4 ml-1" />
+              Acessar <ArrowRight className="w-4 h-4 ml-1" />
             </div>
           </Link>
         ))}

@@ -1,4 +1,3 @@
-
 // Tabelas de referência 2024/2025
 
 export const INSS_TABLE = [
@@ -53,22 +52,11 @@ export function calculateIRRF(baseSalary: number, dependents: number = 0): { irr
   
   // Option 2: Simplified discount
   const baseSimplified = baseSalary - SIMPLIFIED_DISCOUNT;
-
-  // Choose the most beneficial base (smallest tax base)
-  // Wait, the simplified discount replaces ALL deductions (including INSS? No, usually it replaces the standard deduction vs itemized).
-  // Actually, for payroll (monthly), the simplified discount (564.80) replaces the specific deductions (INSS, dependents, alimony). 
-  // CORRECTION: The simplified discount replaces the *deductions* from the tax base. 
-  // If (INSS + Dependents) < 564.80, use 564.80. Otherwise use (INSS + Dependents).
   
-  // Let's refine the logic based on RFB rules.
-  // The user can choose to deduct 20% simplified (annual) or monthly fixed simplified discount.
-  // Current rule: If the discount of 564.80 is greater than (INSS + Dependents + Alimony), use 564.80.
-  // Note: The input `baseSalary` here is typically (Gross - INSS) for the standard calculation?
-  // No, `baseSalary` passed to this function should be Gross Salary? 
-  // Usually IRRF is calculated on (Gross - INSS - Dependents).
-  // Let's change the signature to take Gross and calculated INSS.
-  
-  return { irrf: 0, effectiveRate: 0, usedSimplified: false }; // Placeholder to fix below
+  // Note: This helper function seems unused or placeholder in previous context, 
+  // keeping structure but it's not fully utilized by calculateNetSalary which does its own logic.
+  // For consistency, I'll leave it as a stub or basic implementation if needed later.
+  return { irrf: 0, effectiveRate: 0, usedSimplified: false }; 
 }
 
 export function calculateNetSalary(grossSalary: number, dependents: number = 0, otherDiscounts: number = 0) {
@@ -123,10 +111,9 @@ export function calculateVacation(grossSalary: number, days: number = 30, sellDa
   const totalSold = soldDaysValue + soldDaysOneThird;
 
   // Taxes are applied on the Vacation Gross (excluding sold days)
-  const inss = calculateINSS(totalVacationGross); // Note: INSS logic might be complex if paid within same month as salary, but here we treat standalone for simplicity
+  const inss = calculateINSS(totalVacationGross); 
   
   // IRRF on Vacation
-  // Similar logic to salary
   const legalDeductions = inss + (dependents * DEPENDENT_DEDUCTION);
   const simplifiedDeduction = SIMPLIFIED_DISCOUNT;
   
@@ -183,5 +170,230 @@ export function calculateCompoundInterest(principal: number, monthlyRate: number
     totalInvested,
     totalInterest: total - totalInvested,
     dataPoints
+  };
+}
+
+export function calculateTermination(
+  salary: number,
+  startDate: string,
+  endDate: string,
+  terminationType: 'sem-justa-causa' | 'com-justa-causa' | 'pedido-demissao',
+  hasAccruedVacation: boolean
+) {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+  const oneDay = 24 * 60 * 60 * 1000;
+
+  // Years worked (for Notice Period)
+  let yearsWorked = end.getFullYear() - start.getFullYear();
+  const m = end.getMonth() - start.getMonth();
+  if (m < 0 || (m === 0 && end.getDate() < start.getDate())) {
+      yearsWorked--;
+  }
+
+  // 1. Saldo de Salário
+  // Days in termination month usually.
+  const lastDayOfMonth = new Date(end.getFullYear(), end.getMonth() + 1, 0).getDate();
+  const daysWorkedInMonth = end.getDate();
+  const saldoSalario = (salary / 30) * daysWorkedInMonth;
+
+  // 2. Aviso Prévio Indenizado
+  let avisoPrevioIndenizado = 0;
+  let avisoDays = 0;
+  
+  if (terminationType === 'sem-justa-causa') {
+    const extraDays = Math.min(yearsWorked * 3, 60); 
+    avisoDays = 30 + extraDays;
+    avisoPrevioIndenizado = (salary / 30) * avisoDays;
+  }
+
+  // 3. 13º Proporcional
+  // Counts months in current year where worked >= 15 days
+  let months13 = 0;
+  const startYear = new Date(end.getFullYear(), 0, 1);
+  const effectiveStart = start > startYear ? start : startYear;
+  
+  let currentMonth = new Date(effectiveStart);
+  // Normalize to start of month to avoid skipping issues
+  currentMonth.setDate(1);
+  
+  const endIterate = new Date(end);
+  endIterate.setDate(1); // Compare months
+
+  while (currentMonth <= endIterate) {
+      let daysWorked = 30;
+      
+      // If it's the start month
+      if (currentMonth.getMonth() === effectiveStart.getMonth() && currentMonth.getFullYear() === effectiveStart.getFullYear()) {
+         daysWorked = 30 - effectiveStart.getDate() + 1;
+      }
+      
+      // If it's the end month
+      if (currentMonth.getMonth() === end.getMonth() && currentMonth.getFullYear() === end.getFullYear()) {
+          daysWorked = end.getDate();
+      }
+
+      if (daysWorked >= 15) {
+          months13++;
+      }
+      
+      currentMonth.setMonth(currentMonth.getMonth() + 1);
+  }
+
+  // Projection of Aviso Previo for 13th
+  if (terminationType === 'sem-justa-causa') {
+      const projectedDate = new Date(end.getTime() + (avisoDays * oneDay));
+      // Simple logic: if projected date extends into next month >= 15 days, or adds full months
+      // Calculate months diff between end and projected
+      // If end is 01/03 and projected is 05/04.
+      // March: 31 days. April: 5 days.
+      // March counts? Yes. April counts? No (<15).
+      
+      // Let's iterate months from End+1Day to ProjectedDate
+      let pDate = new Date(end);
+      pDate.setDate(pDate.getDate() + 1);
+      
+      while (pDate <= projectedDate) {
+          // Check if this month has >= 15 days overlapping with the period [pDate...projectedDate]
+          // Actually, standard is: add the notice days to the service time. Then calculate 13th on the new total time.
+          // Let's use the projected date as the effective termination date for 13th calculation purposes.
+          // BUT, we already calculated months13 up to 'end'.
+          // Let's just calculate how many extra months the projection adds.
+          
+          // Easiest: 1/12 for every 30 days of notice? No.
+          // Correct: Date projection.
+          
+          // Let's check the date of the projected end.
+          if (projectedDate.getMonth() !== end.getMonth() || projectedDate.getFullYear() !== end.getFullYear()) {
+              // It crossed a month boundary.
+              // Calculate 13th months based on Projected Date instead of End Date.
+              // Recalculate months13 fully using projectedDate?
+              
+              let pMonths13 = 0;
+              let pCurrent = new Date(effectiveStart);
+              pCurrent.setDate(1);
+              const pEndIterate = new Date(projectedDate);
+              pEndIterate.setDate(1);
+              
+              while (pCurrent <= pEndIterate) {
+                  let d = 30;
+                   if (pCurrent.getMonth() === effectiveStart.getMonth() && pCurrent.getFullYear() === effectiveStart.getFullYear()) {
+                       d = 30 - effectiveStart.getDate() + 1;
+                   }
+                   if (pCurrent.getMonth() === projectedDate.getMonth() && pCurrent.getFullYear() === projectedDate.getFullYear()) {
+                       d = projectedDate.getDate();
+                   }
+                   if (d >= 15) pMonths13++;
+                   pCurrent.setMonth(pCurrent.getMonth() + 1);
+              }
+              months13 = pMonths13;
+          }
+          break; // only do this check once
+      }
+  }
+
+  if (months13 > 12) months13 = 12;
+  if (terminationType === 'com-justa-causa') months13 = 0;
+  
+  const decimoTerceiro = (salary / 12) * months13;
+
+  // 4. Férias Proporcionais
+  // Logic: Months from anniversary to end (plus projection)
+  let vacationStart = new Date(start);
+  vacationStart.setFullYear(end.getFullYear());
+  if (vacationStart > end) {
+      vacationStart.setFullYear(end.getFullYear() - 1);
+  }
+  
+  let monthsVacation = 0;
+  
+  // Use projected date for vacation calculation if sem-justa-causa
+  let vacCalcEnd = end;
+  if (terminationType === 'sem-justa-causa') {
+      vacCalcEnd = new Date(end.getTime() + (avisoDays * oneDay));
+  }
+  
+  // Count months from vacationStart to vacCalcEnd
+  let vCurrent = new Date(vacationStart);
+  vCurrent.setDate(1); // normalize
+  const vEndIterate = new Date(vacCalcEnd);
+  vEndIterate.setDate(1);
+  
+  // This iteration is tricky because vacation period is not calendar month based (1-30), but anniversary based (e.g. 15th to 14th).
+  // Let's stick to the "days >= 14" rule on the remainder.
+  
+  // Full months diff
+  let diffMonths = (vacCalcEnd.getFullYear() - vacationStart.getFullYear()) * 12 + (vacCalcEnd.getMonth() - vacationStart.getMonth());
+  
+  // Adjust based on day of month
+  // If start 15/02. End 10/04.
+  // Feb 15 to Mar 14 (1 mo). Mar 15 to Apr 14 (incomplete).
+  // End is 10/04. So it didn't complete the 2nd month.
+  // Remainder: Mar 15 to Apr 10. -> 26 days. >= 15? Yes. +1 month.
+  
+  let vDay = vacationStart.getDate();
+  let vEndDay = vacCalcEnd.getDate();
+  
+  if (vEndDay < vDay) {
+      diffMonths--;
+      // Check remainder
+      // Previous cycle end: Day 'vDay' of previous month relative to vacCalcEnd
+      // e.g. Start 15. End 10/04.
+      // Last full cycle ended 14/03.
+      // Remainder: 15/03 to 10/04.
+      // Approx days: (30 - 15) + 10 = 25 days.
+      const prevCycleEnd = new Date(vacCalcEnd.getFullYear(), vacCalcEnd.getMonth() - 1, vDay);
+      const daysRemainder = Math.floor((vacCalcEnd.getTime() - prevCycleEnd.getTime()) / oneDay);
+       if (daysRemainder >= 14) diffMonths++;
+  } else {
+      // End 20/04. Start 15.
+      // Remainder: 15/04 to 20/04 = 5 days. < 14. No extra month.
+      // But we have the full months already in diffMonths.
+      // Wait, diffMonths (Feb to Apr) = 2.
+      // 15/02 to 15/04 is 2 months.
+      // 15/04 to 20/04 is 5 days.
+      // So result is 2.
+      // What if End 10/04? Start 15.
+      // diffMonths = 2.
+      // vEndDay (10) < vDay (15).
+      // diffMonths becomes 1.
+      // Remainder (15/03 to 10/04) is ~25 days. +1.
+      // Result 2.
+  }
+  
+  monthsVacation = diffMonths;
+  if (monthsVacation < 0) monthsVacation = 0; // Should not happen
+  if (monthsVacation > 12) monthsVacation = 12;
+
+  if (terminationType === 'com-justa-causa') monthsVacation = 0;
+
+  const feriasProporcionaisBase = (salary / 12) * monthsVacation;
+  const feriasProporcionais = feriasProporcionaisBase + (feriasProporcionaisBase / 3);
+
+  // 5. Férias Vencidas
+  let feriasVencidas = 0;
+  if (hasAccruedVacation) {
+      feriasVencidas = salary + (salary / 3);
+  }
+
+  // Discounts (INSS on Saldo and 13th)
+  const inssSaldo = calculateINSS(saldoSalario);
+  const inss13 = calculateINSS(decimoTerceiro);
+  
+  const totalProventos = saldoSalario + avisoPrevioIndenizado + decimoTerceiro + feriasProporcionais + feriasVencidas;
+  const totalDescontos = inssSaldo + inss13;
+  
+  return {
+    saldoSalario,
+    avisoPrevioIndenizado,
+    decimoTerceiro,
+    feriasProporcionais,
+    feriasVencidas,
+    totalProventos,
+    inssDiscount: totalDescontos,
+    totalLiquido: totalProventos - totalDescontos,
+    months13,
+    monthsVacation,
+    avisoDays
   };
 }

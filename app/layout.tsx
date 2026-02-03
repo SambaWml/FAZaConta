@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
+import Header from "@/components/Header";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Portal de Ferramentas Úteis | Calculadoras Financeiras e Trabalhistas",
-  description: "Acesse gratuitamente calculadoras de CLT, Férias, Salário Líquido e Juros Compostos. Ferramentas essenciais para seu planejamento financeiro.",
+  title: "QAVenture - Calculadoras Financeiras e Trabalhistas Precisas",
+  description: "Ferramentas gratuitas para cálculos trabalhistas e financeiros: Salário Líquido, Férias, Rescisão e Juros Compostos.",
 };
 
 export default function RootLayout({
@@ -24,6 +26,7 @@ export default function RootLayout({
         ></script>
       </head>
       <body className={`${inter.className} bg-slate-50 min-h-screen flex flex-col`}>
+        <Header />
         {children}
       </body>
     </html>
